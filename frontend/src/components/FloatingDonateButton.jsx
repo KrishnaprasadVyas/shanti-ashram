@@ -22,23 +22,22 @@ const FloatingDonateButton = () => {
   }
 
   return (
-    <Link
-      to="/donate"
-      className="fixed bottom-6 right-6 z-50 group flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-      aria-label="Donate Now"
-    >
-      <HeartIcon className="w-5 h-5 animate-pulse" />
-      <span className="font-semibold">{t("floatingDonate.donate")}</span>
-
-      {/* Ripple effect ring */}
-      <span className="absolute inset-0 rounded-full bg-orange-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
-
-      {/* Ping animation for attention */}
-      <span className="absolute -top-1 -right-1 flex h-3 w-3">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400"></span>
-      </span>
-    </Link>
+    <div className="fixed bottom-6 right-6 z-50">
+      <Link
+        to="/donate"
+        className="relative inline-flex items-center gap-3 rounded-full bg-linear-to-br from-[#904819] to-[#af602f] px-7 py-3.5 text-white shadow-[0_12px_32px_rgba(60,47,47,0.22)] transition-transform duration-200 hover:scale-[1.02]"
+        aria-label="Donate Now"
+      >
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-white/18">
+          <HeartIcon className="h-4.5 w-4.5" />
+        </span>
+        <span className="text-lg font-semibold leading-none">
+          {t("floatingDonate.donate")}
+        </span>
+      </Link>
+      <span className="pointer-events-none absolute -right-1 top-0 inline-flex h-4.5 w-4.5 rounded-full border border-[#ede3d5] bg-[#d89a18]" />
+      <span className="pointer-events-none absolute -right-2 top-[-0.35rem] inline-flex h-7 w-7 rounded-full bg-[#ede3d5]/70" />
+    </div>
   );
 };
 

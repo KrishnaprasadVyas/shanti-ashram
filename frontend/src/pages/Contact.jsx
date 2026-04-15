@@ -1,13 +1,8 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import SectionHeading from "../components/SectionHeading";
-import FormInput from "../components/FormInput";
-import PrimaryButton from "../components/PrimaryButton";
 import { validateEmail, validatePhone } from "../utils/helpers";
 import { API_BASE_URL, parseJsonResponse } from "../utils/api";
 
 const Contact = () => {
-  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,55 +14,44 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const nextErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = t("contact.nameRequired");
-    }
-
+    if (!formData.name.trim()) nextErrors.name = "Name is required";
     if (!formData.email.trim()) {
-      newErrors.email = t("contact.emailRequired");
+      nextErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = t("contact.emailInvalid");
+      nextErrors.email = "Please enter a valid email";
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = t("contact.phoneRequired");
+      nextErrors.phone = "Phone is required";
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = t("contact.phoneInvalid");
+      nextErrors.phone = "Please enter a valid phone number";
     }
 
-    if (!formData.subject.trim()) {
-      newErrors.subject = t("contact.subjectRequired");
-    }
+    if (!formData.subject.trim()) nextErrors.subject = "Subject is required";
+    if (!formData.message.trim()) nextErrors.message = "Message is required";
 
-    if (!formData.message.trim()) {
-      newErrors.message = t("contact.messageRequired");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-
     try {
-      const res = await fetch(`${API_BASE_URL}/contact`, {
+      const response = await fetch(`${API_BASE_URL}/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,203 +59,169 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await parseJsonResponse(res);
-
-      if (!res.ok) throw new Error(data.message);
+      const data = await parseJsonResponse(response);
+      if (!response.ok)
+        throw new Error(data.message || "Failed to send message");
 
       setSubmitSuccess(true);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-
       setTimeout(() => setSubmitSuccess(false), 5000);
-    } catch (err) {
-      alert(err.message || "Failed to send message");
+    } catch (error) {
+      alert(error.message || "Failed to send message");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <>
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <div>
-              <SectionHeading title={t("contact.sendMessage")} />
-              {submitSuccess && (
-                <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                  {t("contact.successMessage")}
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <FormInput
-                  label={t("contact.fullName")}
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder={t("contact.namePlaceholder")}
-                  required
-                  error={errors.name}
-                />
-                <FormInput
-                  label={t("contact.emailLabel")}
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder={t("contact.emailPlaceholder")}
-                  required
-                  error={errors.email}
-                />
-                <FormInput
-                  label={t("contact.phoneLabel")}
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder={t("contact.phonePlaceholder")}
-                  required
-                  error={errors.phone}
-                />
-                <FormInput
-                  label={t("contact.subject")}
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder={t("contact.subjectPlaceholder")}
-                  required
-                  error={errors.subject}
-                />
-                <div className="mb-4">
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    {t("contact.message")}{" "}
-                    <span className="text-red-500">*</span>
+    <section className="px-6 py-20 md:px-12">
+      <div className="mx-auto max-w-screen-2xl">
+        <div className="mb-14 grid grid-cols-1 gap-8 md:grid-cols-12 md:items-end">
+          <div className="md:col-span-8">
+            <h1 className="font-serif text-5xl text-[#904819] md:text-7xl">
+              Contact Us
+            </h1>
+            <p className="mt-4 text-xl text-[#54433b]">
+              Get in touch with us for any questions, guidance, or support.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
+          <div className="rounded-[2.5rem] bg-white p-8 shadow-[0_12px_40px_rgba(60,47,47,0.06)] md:col-span-7 md:p-12">
+            {submitSuccess && (
+              <div className="mb-6 rounded-xl bg-green-100 p-4 text-green-700">
+                Message sent successfully.
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm uppercase tracking-widest text-[#73594b]">
+                    Full Name
                   </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
+                  <input
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
-                    rows="5"
-                    required
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                      errors.message
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-amber-500"
-                    }`}
-                    placeholder={t("contact.messagePlaceholder")}
+                    className="w-full rounded-xl bg-[#ebe8e3] px-5 py-4 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                    placeholder="Your name"
                   />
-                  {errors.message && (
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm uppercase tracking-widest text-[#73594b]">
+                    Email
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full rounded-xl bg-[#ebe8e3] px-5 py-4 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                    placeholder="you@example.com"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm uppercase tracking-widest text-[#73594b]">
+                    Phone
+                  </label>
+                  <input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full rounded-xl bg-[#ebe8e3] px-5 py-4 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                    placeholder="Phone number"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm uppercase tracking-widest text-[#73594b]">
+                    Subject
+                  </label>
+                  <input
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    className="w-full rounded-xl bg-[#ebe8e3] px-5 py-4 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                    placeholder="Subject"
+                  />
+                  {errors.subject && (
                     <p className="mt-1 text-sm text-red-600">
-                      {errors.message}
+                      {errors.subject}
                     </p>
                   )}
                 </div>
-                <PrimaryButton
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full"
-                >
-                  {isSubmitting
-                    ? t("contact.sending")
-                    : t("contact.sendButton")}
-                </PrimaryButton>
-              </form>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm uppercase tracking-widest text-[#73594b]">
+                  Message
+                </label>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows="5"
+                  className="w-full rounded-xl bg-[#ebe8e3] px-5 py-4 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                  placeholder="How may we assist your journey?"
+                />
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-600">{errors.message}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="rounded-full bg-linear-to-br from-[#904819] to-[#af602f] px-10 py-4 font-medium text-white"
+              >
+                {isSubmitting ? "Sending..." : "Deliver Message"}
+              </button>
+            </form>
+          </div>
+
+          <div className="space-y-8 md:col-span-5">
+            <div className="rounded-4xl bg-[#f6f3ee] p-8">
+              <h3 className="font-serif text-3xl text-[#1c1c19]">
+                Visit the Sanctuary
+              </h3>
+              <p className="mt-4 text-[#54433b]">
+                Palaskhed Sapkal, Chikhli,
+                <br />
+                Buldhana, Maharashtra
+              </p>
+              <p className="mt-4 text-[#54433b]">9158740007, 9834151577</p>
+              <p className="mt-4 text-[#54433b]">info@shrigurudevashram.org</p>
             </div>
 
-            {/* Contact Information */}
-            <div>
-              <SectionHeading title={t("contact.getInTouch")} />
-              <div className="space-y-6">
-                <div className="bg-amber-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-amber-900 mb-4">
-                    {t("contact.contactInfo")}
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {t("contact.addressLabel")}
-                        </p>
-                        <p className="text-gray-700">
-                          {t("footer.ashramAddress1")}
-                          <br />
-                          {t("footer.ashramAddress2")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {t("contact.phoneTitle")}
-                        </p>
-                        <p className="text-gray-700">9158740007</p>
-                        <p className="text-gray-700">9834151577</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {t("contact.emailTitle")}
-                        </p>
-                        <p className="text-gray-700">
-                          <a
-                            href="mailto:info@shrigurudevashram.org"
-                            className="text-amber-600 hover:underline"
-                          >
-                            info@shrigurudevashram.org
-                          </a>
-                        </p>
-                        <p className="text-gray-700">
-                          <a
-                            href="mailto:info@shantiashramtrust.org"
-                            className="text-amber-600 hover:underline"
-                          >
-                            info@shantiashramtrust.org
-                          </a>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Google Maps Embed */}
-                <div className="bg-amber-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-amber-900 mb-4">
-                    {t("contact.findUs")}
-                  </h3>
-                  <div className="w-full h-64 rounded-lg overflow-hidden">
-                    <iframe
-                      src="https://www.google.com/maps?q=Shri+Gurudev+Ashram+Palaskhed+Sapkal+Chikhli+Buldhana+Maharashtra+443001&output=embed"
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen=""
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Ashram Location"
-                    ></iframe>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2">
-                    <a
-                      href="https://www.google.com/maps/search/?api=1&query=Shri+Gurudev+Ashram+Palaskhed+Sapkal+Chikhli+Buldhana+Maharashtra+443001"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-amber-600 hover:underline"
-                    >
-                      {t("contact.openMaps")}
-                    </a>
-                  </p>
-                </div>
-              </div>
+            <div className="h-90 overflow-hidden rounded-4xl">
+              <iframe
+                src="https://www.google.com/maps?q=Shri+Gurudev+Ashram+Palaskhed+Sapkal+Chikhli+Buldhana+Maharashtra+443001&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                title="Ashram Location"
+              />
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

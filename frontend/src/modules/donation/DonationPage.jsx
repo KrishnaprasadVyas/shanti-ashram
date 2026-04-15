@@ -1,61 +1,33 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import SectionHeading from "../../components/SectionHeading";
 import DonationFlow from "./DonationFlow";
 import DonorList from "./DonorList";
-import { donationIcons } from "../../data/dummyData";
 import { validateReferralCode } from "../../services/collectorApi";
 import { API_BASE_URL } from "../../utils/api";
 
-// Heart Icon for donate button
-const HeartIcon = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-  </svg>
-);
-
-// Component to render SVG icon from string
-const CauseIcon = ({ iconKey, className }) => {
-  const iconSvg = donationIcons[iconKey];
-  if (!iconSvg) return null;
-
-  return (
-    <div className={className} dangerouslySetInnerHTML={{ __html: iconSvg }} />
-  );
-};
-
 const DonationPage = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const donationFlowRef = useRef(null);
-  const [selectedCause, setSelectedCause] = useState(null);
-  const [imageErrors, setImageErrors] = useState({});
   const [searchParams] = useSearchParams();
+
+  const [selectedCause, setSelectedCause] = useState(null);
   const [donationHeads, setDonationHeads] = useState([]);
   const [loadingHeads, setLoadingHeads] = useState(true);
+  const [imageErrors, setImageErrors] = useState({});
 
-  // Referral state from URL params
-  const [referralData, setReferralData] = useState({
-    code: null, // Referral code from URL
-    collectorName: null, // Resolved collector name
-    isValid: false, // Whether code was validated
-    isLoading: false, // Loading state during validation
-    error: null, // Soft error for invalid codes
-  });
-
-  // Prefill amount from URL
   const [prefillAmount, setPrefillAmount] = useState(null);
-
-  // Manual referral entry state
   const [manualReferralInput, setManualReferralInput] = useState("");
   const [manualReferralLoading, setManualReferralLoading] = useState(false);
 
-  // Fetch donation heads from API
+  const [referralData, setReferralData] = useState({
+    code: null,
+    collectorName: null,
+    isValid: false,
+    isLoading: false,
+    error: null,
+  });
+
   useEffect(() => {
     const fetchDonationHeads = async () => {
       try {
@@ -63,11 +35,13 @@ const DonationPage = () => {
           `${API_BASE_URL}/public/donation-heads?lang=${i18n.language || "en"}`,
         );
         const data = await response.json();
-        if (data.success) {
-          setDonationHeads(data.data);
+        if (data?.success) {
+          setDonationHeads(data.data || []);
+        } else {
+          setDonationHeads([]);
         }
-      } catch (error) {
-        console.error("Error fetching donation heads:", error);
+      } catch {
+        setDonationHeads([]);
       } finally {
         setLoadingHeads(false);
       }
@@ -76,60 +50,47 @@ const DonationPage = () => {
     fetchDonationHeads();
   }, [i18n.language]);
 
-  // Handle URL parameters: ref, cause, amount
   useEffect(() => {
-    if (loadingHeads) return; // Wait for donation heads to load
+    if (loadingHeads) return;
 
     const refCode = searchParams.get("ref");
     const causeName = searchParams.get("cause");
     const amount = searchParams.get("amount");
     const quickDonate = searchParams.get("quick");
 
-    // Handle referral code
     if (refCode) {
       handleValidateReferralCode(refCode);
     }
 
-    // Handle cause prefill
     if (causeName) {
       const matchedCause = donationHeads.find(
-        (h) => h.name.toLowerCase() === causeName.toLowerCase(),
+        (head) => head.name?.toLowerCase() === causeName.toLowerCase(),
       );
-      if (matchedCause) {
-        setSelectedCause(matchedCause);
-      }
+      if (matchedCause) setSelectedCause(matchedCause);
     } else if (quickDonate === "true") {
-      // Fallback to Quick Donate behavior
-      const generalSeva = donationHeads.find(
-        (h) => h.name === "General Seva" || h.key === "general",
+      const defaultCause = donationHeads.find((head) =>
+        ["general seva", "general"].includes((head.name || "").toLowerCase()),
       );
-      if (generalSeva) {
-        setSelectedCause(generalSeva);
-      }
+      if (defaultCause) setSelectedCause(defaultCause);
     }
 
-    // Handle amount prefill
     if (amount) {
-      const parsedAmount = parseInt(amount, 10);
-      if (!isNaN(parsedAmount) && parsedAmount > 0) {
+      const parsedAmount = Number.parseInt(amount, 10);
+      if (!Number.isNaN(parsedAmount) && parsedAmount > 0) {
         setPrefillAmount(parsedAmount);
       }
     }
 
-    // Scroll to donation flow if any params present
     if (refCode || causeName || quickDonate === "true") {
       setTimeout(() => {
-        if (donationFlowRef.current) {
-          donationFlowRef.current.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      }, 300);
+        donationFlowRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 250);
     }
   }, [searchParams, donationHeads, loadingHeads]);
 
-  // Validate referral code via backend
   const handleValidateReferralCode = async (code) => {
     setReferralData((prev) => ({
       ...prev,
@@ -140,7 +101,6 @@ const DonationPage = () => {
 
     try {
       const data = await validateReferralCode(code);
-
       if (data.valid && data.collectorName) {
         setReferralData({
           code,
@@ -150,7 +110,6 @@ const DonationPage = () => {
           error: null,
         });
       } else {
-        // Invalid code - show soft warning, allow donation to continue
         setReferralData({
           code: null,
           collectorName: null,
@@ -161,29 +120,24 @@ const DonationPage = () => {
             "Referral code not recognized. You can still donate without it.",
         });
       }
-    } catch (error) {
-      console.warn("Referral validation error:", error);
-      // Network error - still allow donation
+    } catch {
       setReferralData({
         code: null,
         collectorName: null,
         isValid: false,
         isLoading: false,
-        error: null, // Don't show error for network issues
+        error: null,
       });
     }
   };
 
-  // Handle manual referral code entry
   const handleManualReferralSubmit = async () => {
     const code = manualReferralInput.trim().toUpperCase();
     if (!code) return;
 
     setManualReferralLoading(true);
-
     try {
       const data = await validateReferralCode(code);
-
       if (data.valid && data.collectorName) {
         setReferralData({
           code,
@@ -210,7 +164,6 @@ const DonationPage = () => {
     }
   };
 
-  // Clear referral code
   const handleClearReferral = () => {
     setReferralData({
       code: null,
@@ -224,15 +177,12 @@ const DonationPage = () => {
 
   const handleCauseSelect = (head) => {
     setSelectedCause(head);
-    // Scroll to donation flow after component renders
     setTimeout(() => {
-      if (donationFlowRef.current) {
-        donationFlowRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 300);
+      donationFlowRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 200);
   };
 
   const handleImageError = (headId) => {
@@ -241,232 +191,138 @@ const DonationPage = () => {
 
   return (
     <>
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeading
-            title={t("donation.makeTitle")}
-            subtitle={t("donation.makeSubtitle")}
-            center={true}
-          />
-
-          {/* Donation Heads */}
-          {loadingHeads ? (
-            <div className="flex justify-center items-center py-12 mb-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {donationHeads.map((head) => (
-                <button
-                  key={head._id}
-                  onClick={() => handleCauseSelect(head)}
-                  className={`rounded-lg border transition-all text-left overflow-hidden ${
-                    selectedCause?._id === head._id
-                      ? "border-amber-600 border-4 bg-amber-50 shadow-lg"
-                      : "border-amber-200 bg-amber-50 hover:border-amber-400 hover:shadow-md"
-                  }`}
-                >
-                  <div className="w-full aspect-[4/3] overflow-hidden bg-amber-100 flex items-center justify-center">
-                    {imageErrors[head._id] || !head.imageUrl ? (
-                      <CauseIcon
-                        iconKey={head.iconKey || head.icon}
-                        className="w-20 h-20 text-amber-600 flex-shrink-0 [&>svg]:w-full [&>svg]:h-full"
-                      />
-                    ) : (
-                      <img
-                        src={head.imageUrl}
-                        alt={head.name}
-                        className="w-full h-full object-cover"
-                        onError={() => handleImageError(head._id)}
-                      />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        {(head.iconKey || head.icon) && (
-                          <CauseIcon
-                            iconKey={head.iconKey || head.icon}
-                            className="w-5 h-5 text-amber-600 flex-shrink-0 [&>svg]:w-full [&>svg]:h-full"
-                          />
-                        )}
-                        <h3 className="text-lg font-bold text-amber-900">
-                          {head.name}
-                        </h3>
-                      </div>
-                      {selectedCause?._id === head._id && (
-                        <span className="text-amber-600">
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 text-sm">{head.description}</p>
-                    {head.minAmount && (
-                      <p className="text-xs text-amber-700 mt-1 font-medium">
-                        {t("donation.minDonation", {
-                          amount: head.minAmount.toLocaleString("en-IN"),
-                        })}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Impact Section */}
-          <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg p-8 mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-center">
-              {t("donation.impactTitle")}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="text-4xl font-bold mb-2">10,000+</div>
-                <div className="text-amber-100">
-                  {t("donation.familiesFed")}
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold mb-2">5,000+</div>
-                <div className="text-amber-100">
-                  {t("donation.childrenEducated")}
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold mb-2">2,000+</div>
-                <div className="text-amber-100">
-                  {t("donation.medicalCamps")}
-                </div>
-              </div>
+      <section className="px-6 py-20 md:px-12">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="mb-14 grid grid-cols-1 gap-8 md:grid-cols-12 md:items-end">
+            <div className="md:col-span-8">
+              <h1 className="font-serif text-[3.2rem] leading-tight text-[#1c1c19] md:text-[4.5rem]">
+                Donate
+              </h1>
+              <p className="mt-5 max-w-3xl text-lg text-[#54433b]">
+                Choose a cause close to your heart and make a difference.
+              </p>
             </div>
           </div>
 
-          {/* Live Donor List */}
-          <DonorList />
-
-          {/* Referral info banner - show when valid referral code exists */}
-          {referralData.isValid && referralData.collectorName && (
-            <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+          {loadingHeads ? (
+            <div className="py-16 text-center text-[#54433b]">
+              Loading support levels...
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {donationHeads.map((head) => {
+                const selected = selectedCause?._id === head._id;
+                return (
+                  <button
+                    key={head._id}
+                    type="button"
+                    onClick={() => handleCauseSelect(head)}
+                    className={`rounded-4xl p-5 text-left transition-all ${
+                      selected
+                        ? "bg-linear-to-br from-[#904819] to-[#af602f] text-white"
+                        : "bg-white text-[#1c1c19] shadow-[0_12px_40px_rgba(60,47,47,0.06)]"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-green-800 font-medium">
-                    {t("donation.referredBy")}{" "}
-                    <span className="font-bold">
-                      {referralData.collectorName}
-                    </span>
-                  </p>
-                  <p className="text-green-600 text-sm">
-                    {t("donation.attributeNote")}
-                  </p>
-                </div>
-              </div>
+                    <div className="mb-4 h-40 overflow-hidden rounded-3xl bg-[#f6f3ee]">
+                      {head.imageUrl && !imageErrors[head._id] ? (
+                        <img
+                          src={head.imageUrl}
+                          alt={head.name}
+                          onError={() => handleImageError(head._id)}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm opacity-70">
+                          Cause Image
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="font-serif text-2xl">{head.name}</h3>
+                    <p
+                      className={`mt-2 text-sm ${selected ? "text-white/80" : "text-[#54433b]"}`}
+                    >
+                      {head.description || "Support this seva initiative."}
+                    </p>
+                    {head.minAmount ? (
+                      <p
+                        className={`mt-3 text-xs ${selected ? "text-white/80" : "text-[#73594b]"}`}
+                      >
+                        Min ₹{Number(head.minAmount).toLocaleString("en-IN")}
+                      </p>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-12">
+            <DonorList />
+          </div>
+
+          {referralData.isValid && referralData.collectorName && (
+            <div className="mt-8 rounded-2xl bg-green-50 p-4 text-green-700">
+              Referred by{" "}
+              <span className="font-semibold">
+                {referralData.collectorName}
+              </span>
               <button
                 onClick={handleClearReferral}
-                className="text-green-600 hover:text-green-800 text-sm font-medium"
+                className="ml-3 underline"
+                type="button"
               >
-                {t("donation.clear")}
+                Clear
               </button>
             </div>
           )}
 
-          {/* Referral loading state */}
-          {referralData.isLoading && (
-            <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-3">
-              <div className="animate-spin h-5 w-5 border-2 border-amber-600 border-t-transparent rounded-full"></div>
-              <p className="text-gray-600">
-                {t("donation.validatingReferral")}
-              </p>
-            </div>
-          )}
-
-          {/* Referral error warning - soft, doesn't block donation */}
           {referralData.error && !referralData.isValid && (
-            <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
-              <svg
-                className="w-5 h-5 text-amber-600 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <p className="text-amber-700">{referralData.error}</p>
+            <div className="mt-8 rounded-2xl bg-amber-50 p-4 text-amber-700">
+              {referralData.error}
             </div>
           )}
 
-          {/* Manual Referral Entry - show when no valid referral */}
-          {!referralData.isValid && !referralData.isLoading && (
-            <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <p className="text-gray-700 font-medium mb-3">
-                {t("donation.haveReferral")}
+          {!referralData.isValid && (
+            <div className="mt-8 rounded-3xl bg-[#f6f3ee] p-5">
+              <p className="mb-3 text-sm font-medium text-[#3C2F2F]">
+                Have a referral code?
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <input
                   type="text"
-                  placeholder={t("donation.enterReferral")}
                   value={manualReferralInput}
-                  onChange={(e) =>
-                    setManualReferralInput(e.target.value.toUpperCase())
+                  onChange={(event) =>
+                    setManualReferralInput(event.target.value.toUpperCase())
                   }
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm font-mono uppercase"
+                  placeholder="Enter referral code"
                   maxLength={9}
+                  className="min-w-55 flex-1 rounded-xl bg-white px-4 py-3 outline-none focus:ring-1 focus:ring-[#904819]/40"
                 />
                 <button
+                  type="button"
                   onClick={handleManualReferralSubmit}
                   disabled={
                     !manualReferralInput.trim() || manualReferralLoading
                   }
-                  className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-full bg-[#904819] px-6 py-3 text-white disabled:opacity-50"
                 >
-                  {manualReferralLoading
-                    ? t("donation.validating")
-                    : t("donation.apply")}
+                  {manualReferralLoading ? "Validating..." : "Apply"}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {t("donation.referralNote")}
-              </p>
             </div>
           )}
 
-          {/* Donation Flow - Only show when a cause is selected */}
-          {selectedCause && (
+          {selectedCause ? (
             <div ref={donationFlowRef} className="mt-12">
               <DonationFlow
                 selectedCause={selectedCause}
                 referralData={referralData}
                 prefillAmount={prefillAmount}
               />
+            </div>
+          ) : (
+            <div className="mt-12 rounded-3xl bg-[#ebe8e3] p-8 text-center text-[#54433b]">
+              Select a support level to continue to secure contribution.
             </div>
           )}
         </div>

@@ -1,197 +1,97 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 const Footer = () => {
-  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-100 text-gray-700">
-      <div className="mx-auto px-4 sm:px-6 lg:px-10 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          {/* Left Column - Aartis and Discourses */}
-          <div className="bg-gray-200 text-slate-950 overflow-hidden rounded-3xl p-8 sm:p-10 lg:p-12 flex flex-col gap-6">
-            <h3 className="text-2xl font-semibold text-amber-500 text-center tracking-wide">
-              {t("footer.aartisTitle")}
-            </h3>
-            <div className="space-y-3 text-base 90">
-              <p>{t("footer.kakdaAarti")}</p>
-              <p>{t("footer.morningAarti")}</p>
-              <p>{t("footer.breakfast")}</p>
-              <p>{t("footer.lunch")}</p>
-              <p>{t("footer.haripath")}</p>
-              <p>{t("footer.dinner")}</p>
-              <p>{t("footer.gitaPath")}</p>
-            </div>
-            <div className="space-y-2 text-left  text-slate-950">
-              <h4 className="text-lg font-semibold text-amber-300">
-                {t("footer.darshanTimings")}
-              </h4>
-              <p className="text-base">{t("footer.darshanMorning")}</p>
-              <p className="text-base">{t("footer.darshanEvening")}</p>
-            </div>
-            <p className="text-sm italic">{t("footer.timingsNote")}</p>
-          </div>
-
-          {/* Middle Column - Ashram Information */}
-          <div className=" text-slate-950 overflow-hidden rounded-3xl p-8 sm:p-10 lg:p-12 flex flex-col gap-6 text-center">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-amber-500 mb-4">
-                {t("footer.ashramName")}
-              </h2>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>{t("footer.ashramAddress1")}</p>
-                <p>{t("footer.ashramAddress2")}</p>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <h3 className="text-2xl font-semibold text-amber-500 mb-4">
-                {t("footer.followUs")}
-              </h3>
-              <div className="flex justify-center space-x-3">
-                <a
-                  href="https://www.facebook.com/SwamiHarichaitanyanandS/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center bg-yellow-400 rounded-md hover:bg-yellow-500 transition-colors"
-                  aria-label="Facebook"
-                >
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.youtube.com/@shrigurudevashram"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center bg-red-600 rounded-md hover:bg-red-700 transition-colors"
-                  aria-label="YouTube"
-                >
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.instagram.com/swami_harichaitanyaji_/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center bg-orange-500 rounded-md hover:bg-orange-600 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://x.com/Harichaitanyaji"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center bg-black rounded-md hover:bg-gray-800 transition-colors"
-                  aria-label="Twitter/X"
-                >
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </a>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                @swamiharichaitanyanands
-              </p>
-            </div>
-
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>
-                <strong>{t("footer.phone")}:</strong> 9158740007, 9834151577
-              </p>
-              <p>
-                <strong>{t("footer.website")}:</strong>{" "}
-                www.shrigurudevashram.org
-              </p>
-              <p>
-                <strong>{t("footer.email")}:</strong>{" "}
-                <a
-                  href="mailto:info@shrigurudevashram.org"
-                  className="text-amber-600 hover:underline"
-                >
-                  info@shrigurudevashram.org
-                </a>
-                ,{" "}
-                <a
-                  href="mailto:info@shantiashramtrust.org"
-                  className="text-amber-600 hover:underline"
-                >
-                  info@shantiashramtrust.org
-                </a>
-              </p>
-            </div>
-
-            <div className="mt-6 text-xs text-gray-500">
-              <p>{t("footer.dedicatedTo1")}</p>
-              <p>{t("footer.dedicatedTo2")}</p>
-            </div>
-          </div>
-
-          {/* Right Column - Sunday Schedule / Ashram Branches */}
-          <div className="bg-gray-200 text-slate-950 overflow-hidden rounded-3xl p-8 sm:p-10 lg:p-12 flex flex-col gap-6">
-            <h3 className="text-lg font-bold text-amber-700 mb-4">
-              {t("footer.branchesTitle")}
-            </h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>{t("footer.branches.malvihir")}</p>
-              <p>{t("footer.branches.datala")}</p>
-              <p>{t("footer.branches.muktainagar")}</p>
-              <p>{t("footer.branches.kothala")}</p>
-              <p>{t("footer.branches.shindi")}</p>
-              <p>{t("footer.branches.belgaum")}</p>
-            </div>
-
-            <div className="mt-6">
-              <h4 className="font-semibold text-amber-700 mb-2">
-                {t("footer.bankTitle")}
-              </h4>
-              <div className="text-xs text-gray-600 space-y-2">
-                <div>
-                  <p className="font-semibold">{t("footer.bank1.name")}</p>
-                  <p>{t("footer.bank1.bank")}</p>
-                  <p>{t("footer.bank1.account")}</p>
-                  <p>{t("footer.bank1.ifsc")}</p>
-                  <p>{t("footer.bank1.branch")}</p>
-                </div>
-                <div className="mt-3">
-                  <p className="font-semibold">{t("footer.bank2.name")}</p>
-                  <p>{t("footer.bank2.bank")}</p>
-                  <p>{t("footer.bank2.account")}</p>
-                  <p>{t("footer.bank2.ifsc")}</p>
-                  <p>{t("footer.bank2.branch")}</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {t("footer.taxNote")}
-                </p>
-              </div>
-            </div>
+    <footer className="mt-20 w-full rounded-t-[3rem] bg-[#f6f3ee]">
+      <div className="mx-auto grid max-w-screen-2xl grid-cols-1 gap-12 px-10 py-16 md:grid-cols-3">
+        <div>
+          <h4 className="mb-5 font-serif text-xl text-[#3C2F2F]">
+            Shanti Ashram
+          </h4>
+          <p className="max-w-sm text-sm leading-relaxed text-[#3C2F2F]/70">
+            Curation for the soul. A sacred space dedicated to inner stillness,
+            compassionate action, and collective spiritual growth.
+          </p>
+          <div className="mt-5 flex gap-3">
+            <a
+              href="https://www.facebook.com/SwamiHarichaitanyanandS/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#904819] hover:opacity-80"
+            >
+              Facebook
+            </a>
+            <a
+              href="https://www.instagram.com/swami_harichaitanyaji_/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#904819] hover:opacity-80"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://www.youtube.com/@shrigurudevashram"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#904819] hover:opacity-80"
+            >
+              YouTube
+            </a>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-300 text-center text-sm text-gray-600">
-          <p>{t("footer.copyright", { year: currentYear })}</p>
+        <div>
+          <h5 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[#904819]">
+            Pathways
+          </h5>
+          <div className="space-y-3 text-[#3C2F2F]/70">
+            <Link className="block hover:text-[#904819]" to="/about">
+              About
+            </Link>
+            <Link className="block hover:text-[#904819]" to="/activities">
+              Activities
+            </Link>
+            <Link className="block hover:text-[#904819]" to="/events">
+              Events
+            </Link>
+            <Link className="block hover:text-[#904819]" to="/gallery">
+              Gallery
+            </Link>
+            <Link className="block hover:text-[#904819]" to="/donate">
+              Donate
+            </Link>
+            <Link className="block hover:text-[#904819]" to="/contact">
+              Contact
+            </Link>
+          </div>
         </div>
+
+        <div>
+          <h5 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[#904819]">
+            Contact
+          </h5>
+          <p className="mb-2 text-[#3C2F2F]/70">
+            Palaskhed Sapkal, Chikhli, Buldhana, Maharashtra
+          </p>
+          <p className="mb-2 text-[#3C2F2F]/70">9158740007, 9834151577</p>
+          <a
+            href="mailto:info@shrigurudevashram.org"
+            className="block text-[#904819] hover:opacity-80"
+          >
+            info@shrigurudevashram.org
+          </a>
+          <a
+            href="mailto:info@shantiashramtrust.org"
+            className="block text-[#904819] hover:opacity-80"
+          >
+            info@shantiashramtrust.org
+          </a>
+        </div>
+      </div>
+      <div className="pb-10 text-center text-xs uppercase tracking-widest text-[#3C2F2F]/60">
+        © {currentYear} Shanti Ashram. Curation for the Soul.
       </div>
     </footer>
   );

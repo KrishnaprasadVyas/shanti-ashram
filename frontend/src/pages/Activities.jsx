@@ -1,14 +1,23 @@
-import SectionHeading from "../components/SectionHeading";
-import ProgramCard from "../components/ProgramCard";
 import { useActivities } from "../context/ActivitiesContext";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Activities = () => {
+  const { t, i18n } = useTranslation();
   const { getVisibleActivities, getCategories } = useActivities();
   const allActivities = getVisibleActivities();
   const availableCategories = getCategories();
   const categories = ["all", ...availableCategories];
   const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const getLocalizedText = (value) => {
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object") {
+      return value[i18n.language] || value.en || value.hi || value.mr || "";
+    }
+    return "";
+  };
 
   const filteredActivities =
     selectedCategory === "all"
@@ -17,56 +26,105 @@ const Activities = () => {
 
   return (
     <>
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeading
-            title="Our Activities"
-            subtitle="Engage in spiritual practices, social service, and charitable programs"
-            center={true}
-          />
+      <section className="px-6 py-20 md:px-12">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-12 md:items-end">
+            <div className="md:col-span-7">
+              <h1 className="font-serif text-5xl text-[#1c1c19] md:text-7xl">
+                {t("activities.title")}
+              </h1>
+            </div>
+            <p className="text-lg text-[#54433b] md:col-span-5">
+              {t("activities.subtitle")}
+            </p>
+          </div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-2 mb-8 justify-center">
+          <div className="mb-10 flex flex-wrap justify-center gap-3">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-6 py-2 rounded-lg transition-colors capitalize ${
+                className={`rounded-full px-6 py-2 text-sm transition-colors capitalize ${
                   selectedCategory === cat
-                    ? "bg-amber-600 text-white"
-                    : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                    ? "bg-[#904819] text-white"
+                    : "bg-[#ebe8e3] text-[#854f10] hover:bg-[#dac2b6]"
                 }`}
               >
-                {cat === "all" ? "All Activities" : cat}
+                {cat === "all" ? t("gallery.all") : cat}
               </button>
             ))}
           </div>
 
-          {/* Activities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredActivities.map((activity) => (
-              <ProgramCard key={activity.id} program={activity} />
-            ))}
-          </div>
+          {filteredActivities.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredActivities.map((activity) => {
+                const imageSource = activity.imageUrl || activity.image;
+                const title = getLocalizedText(activity.title);
+                const description = getLocalizedText(activity.description);
+
+                return (
+                  <article
+                    key={activity.id}
+                    className="overflow-hidden rounded-4xl bg-white shadow-[0_12px_40px_rgba(60,47,47,0.06)]"
+                  >
+                    {imageSource ? (
+                      <div className="h-52 overflow-hidden bg-[#f6f3ee]">
+                        <img
+                          src={imageSource}
+                          alt={title || "Activity"}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="grid h-24 place-items-center bg-[#f6f3ee] text-[#904819]">
+                        <span className="text-3xl">{activity.icon || "✦"}</span>
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <p className="mb-2 text-xs uppercase tracking-widest text-[#73594b]">
+                        {activity.category || t("activities.title")}
+                      </p>
+                      <h3 className="font-serif text-2xl text-[#1c1c19]">
+                        {title}
+                      </h3>
+                      <p className="mt-3 line-clamp-3 text-[#54433b]">
+                        {description}
+                      </p>
+                      <Link
+                        to={`/activities/${activity.id}`}
+                        className="mt-5 inline-flex rounded-full bg-[#904819] px-5 py-2 text-sm font-medium text-white"
+                      >
+                        {t("activities.learnMore")}
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-3xl bg-[#f6f3ee] p-10 text-center text-[#54433b]">
+              {t("events.noEvents")}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-16 px-4 bg-amber-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-amber-900 mb-4">
-            Want to Participate?
+      <section className="px-6 pb-20 md:px-12">
+        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-[#f6f3ee] p-10 text-center md:p-14">
+          <h2 className="font-serif text-4xl text-[#1c1c19]">
+            {t("activities.participate")}
           </h2>
-          <p className="text-lg text-gray-700 mb-6">
+          <p className="mx-auto mt-4 max-w-2xl text-[#54433b]">
             Join us in our various activities and programs. Your participation
-            makes a difference!
+            makes a difference.
           </p>
-          <a
-            href="/contact"
-            className="inline-block px-8 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold"
+          <Link
+            to="/contact"
+            className="mt-7 inline-flex rounded-full bg-linear-to-br from-[#904819] to-[#af602f] px-8 py-3 font-medium text-white"
           >
             Contact Us
-          </a>
+          </Link>
         </div>
       </section>
     </>
