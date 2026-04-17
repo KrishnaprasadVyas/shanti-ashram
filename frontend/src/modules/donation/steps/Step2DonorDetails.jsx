@@ -633,12 +633,16 @@ const Step2DonorDetails = ({ data, updateData, nextStep, prevStep }) => {
             type="button"
             onClick={prevStep}
             variant="outline"
-            className="flex-1"
+            className="flex-1 !border-[#de7f1f] !text-[#a95d1d] hover:!bg-[#fbefe2]"
             disabled={isLoading}
           >
             {t("donation.step2.back")}
           </PrimaryButton>
-          <PrimaryButton type="submit" className="flex-1" disabled={isLoading}>
+          <PrimaryButton
+            type="submit"
+            className="flex-1 !bg-[#de7f1f] hover:!bg-[#c96f17]"
+            disabled={isLoading}
+          >
             {t("donation.step2.continue", "Continue")}
           </PrimaryButton>
         </div>

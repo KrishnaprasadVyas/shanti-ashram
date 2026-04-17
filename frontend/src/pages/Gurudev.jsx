@@ -17,7 +17,8 @@ const Gurudev = () => {
                 <img
                   src="/assets/gurudev.jpg"
                   alt="Param Pujya Shri Swami Harichaitanyanand Saraswatiji Maharaj"
-                  className="w-full h-full object-cover object-[50%_20%]"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: "65% -38%" }}
                 />
               </div>
               <span className="pointer-events-none absolute -left-2 -top-2 h-6 w-6 border-l-2 border-t-2 border-amber-500/70" />

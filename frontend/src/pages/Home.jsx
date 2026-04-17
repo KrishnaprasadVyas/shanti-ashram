@@ -2,11 +2,19 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { API_BASE_URL } from "../utils/api";
+import { useGallery } from "../context/GalleryContext";
+import { galleryImages } from "../data/dummyData";
 
 const Home = () => {
   const { i18n } = useTranslation();
+  const { getVisibleItems } = useGallery();
 
   const [featuredCauses, setFeaturedCauses] = useState([]);
+  const liveGalleryPhotos = getVisibleItems().slice(0, 4);
+  const glimpsePhotos =
+    liveGalleryPhotos.length > 0
+      ? liveGalleryPhotos
+      : [galleryImages[0], galleryImages[1], galleryImages[4], galleryImages[5]].filter(Boolean);
 
   useEffect(() => {
     const fetchFeaturedCauses = async () => {
@@ -148,7 +156,7 @@ const Home = () => {
               <img
                 src="/assets/gurudev.jpg"
                 alt="Param Pujya Shri Swami Harichaitanyanand Saraswatiji Maharaj"
-                className="h-[340px] w-[255px] object-cover object-center"
+                className="h-[340px] w-[255px] object-cover"
                 style={{ objectPosition: "65% -38%" }}
               />
               <span className="pointer-events-none absolute -left-2 -top-2 h-8 w-8 border-l-2 border-t-2 border-[#c97325]" />
@@ -167,19 +175,23 @@ const Home = () => {
               </h2>
 
               <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
-                Born into a world of ordinary circumstance, Gurudev's life
-                became an extraordinary unfolding of grace. Initiated into the
-                Saraswati order, he has walked the path of Advaita Vedanta for
-                over four decades - teaching not from books alone, but from the
-                living silence of his own realization.
+                Founder and spiritual guide of Shri Gurudev Ashram (Palaskhed
+                Sapkal, Chikhli, Buldhana) and Swami Harichaitanya Shanti
+                Ashram Trust (Datala, Malkapur)
               </p>
 
               <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
-                His teaching is direct, warm, and without pretension. "The
-                Divine is not distant," he says. "It is the very breath in your
-                chest." Thousands of seekers have found in his presence not a
-                teacher to follow, but a mirror in which their own light becomes
-                visible.
+                Gurudev ji showed the path of living with bhakti, gyan and
+                selfless seva together. Through daily satsang, Gita path,
+                Haripath, annadan, education, medical, gaushala, gurukulam,
+                adivasi seva, anath ashram and Seva Tirth Dham, service is
+                rendered to society at the ashram.
+              </p>
+
+              <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
+                The purpose of every seva work is to purify the mind and uplift
+                society. Branches and services inspired by Gurudev ji connect
+                devotees across different parts of the country.
               </p>
 
               <Link
@@ -202,42 +214,26 @@ const Home = () => {
               A glimpse of life here
             </h2>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:grid-rows-2">
-              <div className="col-span-1 row-span-1 flex min-h-[260px] items-center justify-center bg-[#d1c9b6] md:col-span-1 md:row-span-2 md:min-h-[430px]">
-                <div className="text-center">
-                  <svg
-                    width="42"
-                    height="42"
-                    viewBox="0 0 42 42"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mx-auto"
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+              {glimpsePhotos.map((photo, index) => {
+                const isLarge = index === 0;
+                return (
+                  <figure
+                    key={photo.id}
+                    className={`group overflow-hidden rounded-[2rem] bg-white shadow-[0_12px_32px_rgba(60,47,47,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(60,47,47,0.16)] ${
+                      isLarge ? "md:col-span-5 md:row-span-2 min-h-[420px]" : "md:col-span-3 min-h-[200px]"
+                    }`}
                   >
-                    <rect x="2" y="2" width="38" height="38" rx="2" stroke="#c97325" strokeWidth="1.5" />
-                    <circle cx="21" cy="16" r="6" stroke="#c97325" strokeWidth="1.5" />
-                    <path d="M11 31C12.5 25.8 16.1 23 21 23C25.9 23 29.5 25.8 31 31" stroke="#c97325" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                  <p className="mt-3 text-[12px] tracking-[0.12em] text-[#9b6a47] uppercase">
-                    Morning Aarti
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex min-h-[208px] items-center justify-center bg-[#c6d6c5] text-[12px] tracking-[0.12em] text-[#9b6a47] uppercase">
-                Ashram Garden
-              </div>
-
-              <div className="flex min-h-[208px] items-center justify-center bg-[#d1c9b6] text-[12px] tracking-[0.12em] text-[#9b6a47] uppercase">
-                Satsang Hall
-              </div>
-
-              <div className="flex min-h-[208px] items-center justify-center bg-[#d3c8ad] text-[12px] tracking-[0.12em] text-[#9b6a47] uppercase">
-                Kitchen Seva
-              </div>
-
-              <div className="flex min-h-[208px] items-center justify-center bg-[#c6d6c5] text-[12px] tracking-[0.12em] text-[#9b6a47] uppercase">
-                Children's Class
-              </div>
+                    <div className="relative h-full min-h-[200px] overflow-hidden">
+                      <img
+                        src={photo.src}
+                        alt={photo.title || "Ashram gallery moment"}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  </figure>
+                );
+              })}
             </div>
 
             <div className="mt-3 text-right">

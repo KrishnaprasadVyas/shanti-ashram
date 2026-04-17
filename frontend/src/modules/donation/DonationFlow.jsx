@@ -191,20 +191,26 @@ const DonationFlow = ({
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                       currentStep >= step.number
-                        ? "bg-amber-600 text-white"
-                        : "bg-gray-200 text-gray-600"
+                        ? "bg-[#de7f1f] text-white"
+                        : "bg-[#ece5da] text-[#8a7765]"
                     }`}
                   >
                     {currentStep > step.number ? "✓" : step.number}
                   </div>
-                  <p className="text-xs mt-2 text-center text-gray-600 hidden sm:block">
+                  <p
+                    className={`text-xs mt-2 text-center hidden sm:block ${
+                      currentStep >= step.number
+                        ? "text-[#6b3a12] font-medium"
+                        : "text-[#8a7765]"
+                    }`}
+                  >
                     {step.title}
                   </p>
                 </div>
                 {step.number < 4 && (
                   <div
                     className={`flex-1 h-1 mx-2 ${
-                      currentStep > step.number ? "bg-amber-600" : "bg-gray-200"
+                      currentStep > step.number ? "bg-[#de7f1f]" : "bg-[#e4d8c7]"
                     }`}
                   ></div>
                 )}
