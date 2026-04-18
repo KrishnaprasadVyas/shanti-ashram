@@ -35,8 +35,8 @@ const FloatingDonateButton = () => {
           {t("floatingDonate.donate")}
         </span>
       </Link>
-      <span className="pointer-events-none absolute -right-1 top-0 inline-flex h-4.5 w-4.5 rounded-full border border-[#ede3d5] bg-[#d89a18]" />
-      <span className="pointer-events-none absolute -right-2 top-[-0.35rem] inline-flex h-7 w-7 rounded-full bg-[#ede3d5]/70" />
+      <span className="donate-dot-blink pointer-events-none absolute -right-1 top-0 inline-flex h-4.5 w-4.5 rounded-full border border-[#ede3d5] bg-[#d89a18]" />
+      <span className="donate-dot-ring pointer-events-none absolute -right-2 top-[-0.35rem] inline-flex h-7 w-7 rounded-full bg-[#ede3d5]/70" />
     </div>
   );
 };

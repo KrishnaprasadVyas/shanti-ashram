@@ -217,9 +217,9 @@ const DonationPage = () => {
                     key={head._id}
                     type="button"
                     onClick={() => handleCauseSelect(head)}
-                    className={`rounded-4xl p-5 text-left transition-all ${
+                    className={`group rounded-4xl p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_42px_rgba(60,47,47,0.18)] ${
                       selected
-                        ? "bg-linear-to-br from-[#904819] to-[#af602f] text-white"
+                        ? "bg-linear-to-br from-[#904819] to-[#af602f] text-white shadow-[0_16px_42px_rgba(96,52,24,0.35)]"
                         : "bg-white text-[#1c1c19] shadow-[0_12px_40px_rgba(60,47,47,0.06)]"
                     }`}
                   >
@@ -229,7 +229,7 @@ const DonationPage = () => {
                           src={head.imageUrl}
                           alt={head.name}
                           onError={() => handleImageError(head._id)}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-sm opacity-70">
@@ -237,15 +237,25 @@ const DonationPage = () => {
                         </div>
                       )}
                     </div>
-                    <h3 className="font-serif text-2xl">{head.name}</h3>
+                    <h3
+                      className={`font-serif text-2xl transition-colors duration-300 ${
+                        selected ? "text-white" : "group-hover:text-[#7d3c14]"
+                      }`}
+                    >
+                      {head.name}
+                    </h3>
                     <p
-                      className={`mt-2 text-sm ${selected ? "text-white/80" : "text-[#54433b]"}`}
+                      className={`mt-2 text-sm transition-colors duration-300 ${
+                        selected ? "text-white/80" : "text-[#54433b] group-hover:text-[#3f312a]"
+                      }`}
                     >
                       {head.description || "Support this seva initiative."}
                     </p>
                     {head.minAmount ? (
                       <p
-                        className={`mt-3 text-xs ${selected ? "text-white/80" : "text-[#73594b]"}`}
+                        className={`mt-3 text-xs transition-colors duration-300 ${
+                          selected ? "text-white/80" : "text-[#73594b] group-hover:text-[#5c463a]"
+                        }`}
                       >
                         Min ₹{Number(head.minAmount).toLocaleString("en-IN")}
                       </p>
