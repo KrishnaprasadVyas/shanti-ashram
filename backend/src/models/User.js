@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.index({ role: 1 });
-userSchema.index({ referralCode: 1 }); // Fast lookup for donation attribution
+// userSchema.index({ referralCode: 1 }); // Fast lookup for donation attribution
 userSchema.index({ "collectorProfile.status": 1 }); // Fast lookup for pending applications
 
 module.exports = mainDb.models.User || mainDb.model("User", userSchema);
