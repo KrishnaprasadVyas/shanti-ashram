@@ -28,4 +28,12 @@ i18n
     // supportedLngs: ["en", "hi", "mr"],
   });
 
+if (typeof document !== "undefined") {
+  document.documentElement.lang = i18n.language || "en";
+  i18n.on("languageChanged", (lng) => {
+    document.documentElement.lang = lng || "en";
+  });
+}
+
 export default i18n;
+

@@ -6,7 +6,7 @@ import { useGallery } from "../context/GalleryContext";
 import { galleryImages } from "../data/dummyData";
 
 const Home = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { getVisibleItems } = useGallery();
 
   const [featuredCauses, setFeaturedCauses] = useState([]);
@@ -25,6 +25,8 @@ const Home = () => {
         const data = await response.json();
         if (data?.success) {
           setFeaturedCauses(data.data || []);
+        } else {
+          setFeaturedCauses([]);
         }
       } catch {
         setFeaturedCauses([]);
@@ -36,8 +38,8 @@ const Home = () => {
 
   return (
     <>
-      <section className="relative flex min-h-[80vh] items-center overflow-hidden bg-[#fcf9f4] px-6 py-24 md:px-12">
-        <div className="absolute inset-0 opacity-20">
+      <section className="relative flex min-h-[70vh] items-center overflow-hidden bg-[#fcf9f4] px-6 pt-10 pb-16 md:pt-14 md:pb-24 md:px-12">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <img
             src="/assets/gurudev.jpg"
             alt="Ashram"
@@ -45,23 +47,22 @@ const Home = () => {
           />
         </div>
         <div className="relative mx-auto grid w-full max-w-screen-2xl grid-cols-1 gap-10 md:grid-cols-12">
-          <div className="md:col-span-7">
+          <div className="md:col-span-8">
             <p className="mb-4 ml-0.5 text-xs tracking-[0.24em] text-[#7f6a5a] uppercase">
               Since 2020
             </p>
 
             <div className="flex items-start">
               <h1
-                className="text-4xl leading-tight text-[#1c1c19] md:text-5xl"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight text-[#1c1c19]"
                 style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
               >
-                Swami Hairchaitanya Shanti Ashram Trust
+                {t("home.title")}
               </h1>
             </div>
 
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#54433b] md:text-lg">
-              Param Pujya Shri Swami Harichaitanyanand Saraswatiji Maharaj's seva
-              kshetra for bhakti, gyan and nishkam seva
+              {t("home.subtitle")}
             </p>
 
             <p
@@ -71,18 +72,24 @@ const Home = () => {
               राधे राधे <span className="text-base">🪈</span>
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 to="/about"
-                className="rounded-full border border-[#bda58f] bg-[#efe6da]/80 px-8 py-3 text-[#4d3f35] transition hover:bg-[#e6d8c7]"
+                className="rounded-full border border-[#bda58f] bg-[#efe6da]/80 px-7 py-3 text-sm font-medium text-[#4d3f35] transition hover:bg-[#e6d8c7]"
               >
-                About
+                {t("nav.about")}
               </Link>
               <Link
                 to="/gurudev"
-                className="rounded-full border border-[#cdb9a6] bg-[#f7f1e8] px-8 py-3 text-[#5e4a3d] transition hover:bg-[#efe5d7]"
+                className="rounded-full border border-[#cdb9a6] bg-[#f7f1e8] px-7 py-3 text-sm font-medium text-[#5e4a3d] transition hover:bg-[#efe5d7]"
               >
-                Gurudev
+                {t("nav.gurudev")}
+              </Link>
+              <Link
+                to="/donate"
+                className="rounded-full bg-[#904819] px-7 py-3 text-sm font-medium text-white transition hover:bg-[#7d3c14] shadow-sm"
+              >
+                {t("nav.donate")}
               </Link>
             </div>
           </div>
@@ -128,10 +135,10 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-[#f6f3ee] px-6 py-24 md:px-12">
+      <section className="bg-[#f6f3ee] px-6 py-16 md:py-24 md:px-12">
         <div className="mx-auto max-w-screen-2xl">
           <div className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c97325]">
-            Our Gurudev
+            {t("nav.gurudev")}
           </div>
 
           <div className="mb-10 flex items-center gap-4">
@@ -175,43 +182,35 @@ const Home = () => {
               </h2>
 
               <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
-                Founder and spiritual guide of Shri Gurudev Ashram (Palaskhed
-                Sapkal, Chikhli, Buldhana) and Swami Harichaitanya Shanti
-                Ashram Trust (Datala, Malkapur)
+                {t("gurudev.description")}
               </p>
 
               <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
-                Gurudev ji showed the path of living with bhakti, gyan and
-                selfless seva together. Through daily satsang, Gita path,
-                Haripath, annadan, education, medical, gaushala, gurukulam,
-                adivasi seva, anath ashram and Seva Tirth Dham, service is
-                rendered to society at the ashram.
+                {t("gurudev.about1")}
               </p>
 
               <p className="mb-5 max-w-5xl text-[13.5px] leading-[1.8] text-[#5a3820]">
-                The purpose of every seva work is to purify the mind and uplift
-                society. Branches and services inspired by Gurudev ji connect
-                devotees across different parts of the country.
+                {t("gurudev.about2")}
               </p>
 
               <Link
                 to="/gurudev"
-                className="text-[13px] text-[#c97325] underline underline-offset-4"
+                className="text-[13px] font-medium text-[#c97325] underline underline-offset-4"
               >
-                Know Gurudev →
+                {t("common.learnMore")} →
               </Link>
             </div>
           </div>
 
           <div className="mt-16">
             <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[#c97325]">
-              From the Ashram
+              {t("gallery.title")}
             </p>
             <h2
-              className="mb-10 text-[56px] leading-none text-[#3d1f0a]"
+              className="mb-10 text-3xl sm:text-4xl md:text-[56px] leading-none text-[#3d1f0a]"
               style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
             >
-              A glimpse of life here
+              {t("gallery.heroTitle")}
             </h2>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
@@ -219,15 +218,15 @@ const Home = () => {
                 const isLarge = index === 0;
                 return (
                   <figure
-                    key={photo.id}
+                    key={photo.id || index}
                     className={`group overflow-hidden rounded-[2rem] bg-white shadow-[0_12px_32px_rgba(60,47,47,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(60,47,47,0.16)] ${
-                      isLarge ? "md:col-span-5 md:row-span-2 min-h-[420px]" : "md:col-span-3 min-h-[200px]"
+                      isLarge ? "md:col-span-5 md:row-span-2 min-h-[360px]" : "md:col-span-3 min-h-[180px]"
                     }`}
                   >
-                    <div className="relative h-full min-h-[200px] overflow-hidden">
+                    <div className="relative h-full min-h-[180px] overflow-hidden">
                       <img
-                        src={photo.src}
-                        alt={photo.title || "Ashram gallery moment"}
+                        src={photo.src || photo.url}
+                        alt={photo.title || "Ashram moment"}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
@@ -236,35 +235,34 @@ const Home = () => {
               })}
             </div>
 
-            <div className="mt-3 text-right">
+            <div className="mt-4 text-right">
               <Link
                 to="/gallery"
-                className="text-[12px] text-[#c97325] underline underline-offset-4"
+                className="text-sm font-medium text-[#c97325] underline underline-offset-4"
               >
-                View full gallery →
+                {t("gallery.title")} →
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-24 md:px-12">
-        <div className="mx-auto max-w-screen-2xl rounded-[3rem] bg-linear-to-br from-[#904819] to-[#af602f] p-10 text-white md:p-16">
-          <h2 className="font-serif text-4xl md:text-5xl">
-            Support the Shanti Mission
+      <section className="px-6 py-16 md:py-24 md:px-12">
+        <div className="mx-auto max-w-screen-2xl rounded-[3rem] bg-linear-to-br from-[#904819] to-[#af602f] p-8 md:p-16 text-white">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl">
+            {t("home.supportCause")}
           </h2>
-          <p className="mt-4 max-w-3xl text-white/90">
-            Your contribution powers food, education, shelter, and spiritual
-            guidance.
+          <p className="mt-4 max-w-3xl text-sm md:text-base text-white/90">
+            {t("home.supportSubtitle")}
           </p>
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {featuredCauses.map((cause) => (
               <div
                 key={cause._id}
                 className="rounded-2xl bg-white/10 p-5 backdrop-blur-md"
               >
-                <h4 className="font-serif text-2xl">{cause.name}</h4>
-                <p className="mt-1 text-sm text-white/80 line-clamp-2">
+                <h4 className="font-serif text-xl md:text-2xl">{cause.name}</h4>
+                <p className="mt-2 text-xs md:text-sm text-white/80 line-clamp-2">
                   {cause.description}
                 </p>
               </div>
@@ -273,9 +271,9 @@ const Home = () => {
           <div className="mt-8">
             <Link
               to="/donate"
-              className="rounded-full bg-white px-8 py-4 font-semibold text-[#904819]"
+              className="inline-block rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-[#904819] hover:bg-white/90 transition shadow-md"
             >
-              Donate Now
+              {t("home.ctaDonate")}
             </Link>
           </div>
         </div>

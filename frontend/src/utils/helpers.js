@@ -17,9 +17,49 @@ export const formatDate = (dateString) => {
   });
 };
 
+export const formatLocalizedDate = (dateString, language = 'en', options = {}) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return String(dateString);
+
+  const localeMap = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    mr: 'mr-IN',
+  };
+  const locale = localeMap[language] || 'en-IN';
+
+  const defaultOptions = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  };
+
+  try {
+    return new Intl.DateTimeFormat(locale, { ...defaultOptions, ...options }).format(date);
+  } catch {
+    return date.toLocaleDateString(locale, { ...defaultOptions, ...options });
+  }
+};
+
+export const formatLocalizedTime = (timeString, language = 'en') => {
+  if (!timeString) return '';
+  const str = String(timeString).trim();
+  if (language === 'mr') {
+    if (/all day/i.test(str)) return 'दिवसभर';
+    return str.replace(/am/i, 'सकाळी').replace(/pm/i, 'सायंकाळी');
+  }
+  if (language === 'hi') {
+    if (/all day/i.test(str)) return 'पूरे दिन';
+    return str.replace(/am/i, 'प्रातः').replace(/pm/i, 'सायं');
+  }
+  return str;
+};
+
 export const formatDateTime = (dateString, timeString) => {
   return `${formatDate(dateString)} at ${timeString}`;
 };
+
 
 export const generateOrderId = () => {
   return `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;

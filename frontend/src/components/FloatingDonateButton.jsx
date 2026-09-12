@@ -26,7 +26,7 @@ const FloatingDonateButton = () => {
       <Link
         to="/donate"
         className="relative inline-flex items-center gap-3 rounded-full bg-linear-to-br from-[#904819] to-[#af602f] px-7 py-3.5 text-white shadow-[0_12px_32px_rgba(60,47,47,0.22)] transition-transform duration-200 hover:scale-[1.02]"
-        aria-label="Donate Now"
+        aria-label={t("nav.donate", "Donate")}
       >
         <span className="grid h-8 w-8 place-items-center rounded-full bg-white/18">
           <HeartIcon className="h-4.5 w-4.5" />

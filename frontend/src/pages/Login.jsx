@@ -84,7 +84,7 @@ const Login = () => {
 
   const verifyOTP = async () => {
     if (!otp) {
-      setError("Enter the OTP");
+      setError(t("login.enterOtpPrompt", "Enter the OTP"));
       return;
     }
 
@@ -113,7 +113,7 @@ const Login = () => {
       navigate(getRedirectPath(returnUrl));
     } catch (err) {
       console.error(err);
-      setError("Invalid OTP");
+      setError(t("login.invalidOtp", "Invalid OTP. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -142,17 +142,17 @@ const Login = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-[#f3f0ea] min-h-[60vh]">
-      <div className="max-w-md mx-auto bg-[#fffaf0] border border-[#d8c8a6] rounded-xl shadow-[0_8px_22px_rgba(50,38,26,0.10)] p-6">
+    <section className="py-16 px-4 bg-[#f3f0ea] min-h-[60vh] flex items-center justify-center">
+      <div className="w-full max-w-md bg-[#fffaf0] border border-[#d8c8a6] rounded-2xl shadow-[0_8px_24px_rgba(50,38,26,0.08)] p-6 sm:p-8">
         <SectionHeading
           title={t("login.title")}
           subtitle={t("login.enterPhone")}
           center={true}
-          titleClassName="text-[#d97706]"
+          titleClassName="text-[#904819]"
         />
 
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
             {error}
           </div>
         )}
@@ -160,8 +160,8 @@ const Login = () => {
           {step === "phone" && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <p className="mb-4 text-[28px] leading-[1.35] text-[#727b85] md:text-[34px]">
-                  We will send you an OTP on this mobile number.
+                <p className="mb-4 text-sm text-[#73594b] leading-relaxed">
+                  {t("login.otpNotice", "We will send you an OTP on this mobile number.")}
                 </p>
                 <label className="block text-sm font-semibold text-[#4a3424] mb-2">
                   {t("login.phoneNumber")}
@@ -172,7 +172,7 @@ const Login = () => {
                     value={country.value}
                     onChange={handleCountryChange}
                     disabled={isLoading}
-                    className="w-36 px-2 py-2 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40"
+                    className="w-36 px-2 py-2 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40 text-sm"
                   >
                     {COUNTRY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -185,9 +185,9 @@ const Login = () => {
                     type="tel"
                     value={phone}
                     onChange={handlePhoneChange}
-                    placeholder={`${country.length}-digit number`}
+                    placeholder={t("login.phonePlaceholder", { length: country.length, defaultValue: `${country.length}-digit number` })}
                     disabled={isLoading}
-                    className="flex-1 px-3 py-2 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] placeholder:text-[#9a8a76] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40"
+                    className="flex-1 px-3 py-2 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] placeholder:text-[#9a8a76] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40 text-sm"
                   />
                 </div>
               </div>
@@ -196,7 +196,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading || phone.length !== country.length}
-                className="w-full py-3 bg-[#6b3f1f] text-white font-semibold rounded-md hover:bg-[#583218] disabled:opacity-60"
+                className="w-full py-3 bg-[#6b3f1f] text-white font-semibold rounded-lg hover:bg-[#583218] disabled:opacity-60 transition-colors shadow-xs"
               >
                 {isLoading ? t("login.sendingOtp") : t("login.sendOtp")}
               </button>
@@ -205,24 +205,40 @@ const Login = () => {
 
           {step === "otp" && (
             <div className="space-y-4">
-              <label className="block text-sm font-semibold text-[#4a3424]">
-                Enter OTP
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-semibold text-[#4a3424]">
+                  {t("login.enterOtp", "Enter OTP")}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("phone");
+                    setOtp("");
+                    setError("");
+                  }}
+                  className="text-xs text-[#904819] hover:underline"
+                >
+                  {t("login.changeNumber", "Change Number")}
+                </button>
+              </div>
 
               <input
                 type="text"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter OTP"
-                className="w-full px-3 py-2 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] placeholder:text-[#9a8a76] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder={t("login.enterOtpPlaceholder", "Enter 6-digit OTP")}
+                disabled={isLoading}
+                maxLength={6}
+                className="w-full px-3 py-2.5 border border-[#cdb894] bg-[#fffdf7] text-[#4a3424] placeholder:text-[#9a8a76] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a6a4a]/40 text-center tracking-widest text-lg font-medium"
               />
 
               <button
+                type="button"
                 onClick={verifyOTP}
-                disabled={isLoading}
-                className="w-full py-3 bg-[#6b3f1f] text-white font-semibold rounded-md hover:bg-[#583218] disabled:opacity-60"
+                disabled={isLoading || otp.length !== 6}
+                className="w-full py-3 bg-[#6b3f1f] text-white font-semibold rounded-lg hover:bg-[#583218] disabled:opacity-60 transition-colors shadow-xs"
               >
-                {isLoading ? "Verifying..." : "Verify OTP"}
+                {isLoading ? t("login.verifying", "Verifying...") : t("login.verifyOtp", "Verify OTP")}
               </button>
             </div>
           )}

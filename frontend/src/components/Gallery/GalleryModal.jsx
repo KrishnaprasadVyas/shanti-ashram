@@ -1,18 +1,31 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Download } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) => {
+  const { i18n, t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const getLocalizedText = (value) => {
+  const getLocalizedText = useCallback((value) => {
     if (typeof value === "string") return value;
     if (value && typeof value === "object") {
-      const lang = document.documentElement.lang || "en";
+      const lang = i18n.language?.startsWith("hi")
+        ? "hi"
+        : i18n.language?.startsWith("mr")
+        ? "mr"
+        : "en";
       return value[lang] || value.en || "";
     }
     return "";
-  };
+  }, [i18n.language]);
+
+  const categoryName = typeof image.category === "string" 
+    ? image.category 
+    : getLocalizedText(image.category);
+  const localizedCategory = categoryName 
+    ? t(`activities.categories.${categoryName.toLowerCase()}`, categoryName)
+    : "";
 
   // Keyboard navigation
   useEffect(() => {
@@ -46,7 +59,7 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
     } finally {
       setIsDownloading(false);
     }
-  }, [image]);
+  }, [image, getLocalizedText]);
 
   const currentIndex = allImages.findIndex((img) => img.id === image.id);
   const hasNext = currentIndex < allImages.length - 1;
@@ -54,14 +67,14 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
 
   return (
     <AnimatePresence>
-      <motion.div
+      <Motion.div
         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
-        <motion.div
+        <Motion.div
           className="relative w-full max-w-5xl max-h-[90vh] flex flex-col"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -78,8 +91,8 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
           </div>
 
           {/* Image Info */}
-          {(getLocalizedText(image.title) || image.category) && (
-            <motion.div
+          {(getLocalizedText(image.title) || localizedCategory) && (
+            <Motion.div
               className="mt-4 p-4 bg-black/50 backdrop-blur rounded-xl text-white"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -89,14 +102,12 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
                   {getLocalizedText(image.title)}
                 </h3>
               )}
-              {image.category && (
+              {localizedCategory && (
                 <p className="text-sm text-gray-300 capitalize">
-                  {typeof image.category === "string"
-                    ? image.category
-                    : getLocalizedText(image.category)}
+                  {localizedCategory}
                 </p>
               )}
-            </motion.div>
+            </Motion.div>
           )}
 
           {/* Navigation Controls */}
@@ -109,19 +120,19 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
             {/* Action Buttons */}
             <div className="flex gap-2">
               {/* Download */}
-              <motion.button
+              <Motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleDownload}
                 disabled={isDownloading}
                 className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors disabled:opacity-50"
-                title="Download"
+                title={t("gallery.download")}
               >
                 <Download className="w-5 h-5" />
-              </motion.button>
+              </Motion.button>
 
               {/* Previous */}
-              <motion.button
+              <Motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onPrevious}
@@ -130,10 +141,10 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
                 title="Previous (← arrow key)"
               >
                 <ChevronLeft className="w-5 h-5" />
-              </motion.button>
+              </Motion.button>
 
               {/* Next */}
-              <motion.button
+              <Motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onNext}
@@ -142,18 +153,18 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
                 title="Next (→ arrow key)"
               >
                 <ChevronRight className="w-5 h-5" />
-              </motion.button>
+              </Motion.button>
 
               {/* Close */}
-              <motion.button
+              <Motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
                 className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-                title="Close (Esc)"
+                title={t("gallery.close")}
               >
                 <X className="w-5 h-5" />
-              </motion.button>
+              </Motion.button>
             </div>
 
             {/* Empty space for alignment */}
@@ -165,8 +176,8 @@ const GalleryModal = ({ image, onClose, onPrevious, onNext, allImages = [] }) =>
             Press <kbd className="px-1.5 py-0.5 bg-gray-700 rounded text-gray-200">Esc</kbd> to close,
             <kbd className="px-1.5 py-0.5 bg-gray-700 rounded text-gray-200 ml-1">←→</kbd> to navigate
           </div>
-        </motion.div>
-      </motion.div>
+        </Motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 };

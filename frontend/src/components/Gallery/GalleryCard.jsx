@@ -1,7 +1,9 @@
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const GalleryCard = ({ image, onClick, index, layout = "grid" }) => {
+  const { i18n, t } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const cardVariants = {
@@ -33,14 +35,25 @@ const GalleryCard = ({ image, onClick, index, layout = "grid" }) => {
   const getLocalizedText = (value) => {
     if (typeof value === "string") return value;
     if (value && typeof value === "object") {
-      const lang = document.documentElement.lang || "en";
+      const lang = i18n.language?.startsWith("hi")
+        ? "hi"
+        : i18n.language?.startsWith("mr")
+        ? "mr"
+        : "en";
       return value[lang] || value.en || "";
     }
     return "";
   };
 
+  const categoryName = typeof image.category === "string" 
+    ? image.category 
+    : getLocalizedText(image.category);
+  const localizedCategory = categoryName 
+    ? t(`activities.categories.${categoryName.toLowerCase()}`, categoryName)
+    : "";
+
   return (
-    <motion.div
+    <Motion.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
@@ -49,7 +62,7 @@ const GalleryCard = ({ image, onClick, index, layout = "grid" }) => {
     >
       <button
         onClick={onClick}
-        className="group relative w-full h-full overflow-hidden bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#c97325] focus:ring-offset-2 rounded-2xl"
+        className="group relative w-full h-full overflow-hidden bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#c97325] focus:ring-offset-2 rounded-2xl text-left"
       >
         {/* Image */}
         <img
@@ -78,11 +91,9 @@ const GalleryCard = ({ image, onClick, index, layout = "grid" }) => {
             </h3>
           )}
           
-          {image.category && (
-            <p className="text-sm text-white/80 capitalize">
-              {typeof image.category === "string"
-                ? image.category
-                : getLocalizedText(image.category)}
+          {localizedCategory && (
+            <p className="text-sm text-white/85 capitalize">
+              {localizedCategory}
             </p>
           )}
         </div>
@@ -104,7 +115,7 @@ const GalleryCard = ({ image, onClick, index, layout = "grid" }) => {
           </svg>
         </div>
       </button>
-    </motion.div>
+    </Motion.div>
   );
 };
 

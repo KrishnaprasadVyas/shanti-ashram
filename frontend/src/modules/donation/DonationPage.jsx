@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import DonationFlow from "./DonationFlow";
@@ -7,7 +7,7 @@ import { validateReferralCode } from "../../services/collectorApi";
 import { API_BASE_URL } from "../../utils/api";
 
 const DonationPage = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const donationFlowRef = useRef(null);
   const [searchParams] = useSearchParams();
 
@@ -27,6 +27,94 @@ const DonationPage = () => {
     isLoading: false,
     error: null,
   });
+
+  const getLocalizedCauseName = (name) => {
+    if (!name) return "";
+    const n = name.trim().toLowerCase();
+    if (n.includes("annadan") || n.includes("anna") || n.includes("food")) {
+      return t("donation.causes.annadanSeva", name);
+    }
+    if (n.includes("gau") || n.includes("cow")) {
+      return t("donation.causes.gauSeva", name);
+    }
+    if (n.includes("education") || n.includes("gurukul") || n.includes("school")) {
+      return t("donation.causes.educationSupport", name);
+    }
+    if (n.includes("medical") || n.includes("health")) {
+      return t("donation.causes.medicalRelief", name);
+    }
+    if (n.includes("nirman") || n.includes("construction") || n.includes("ashram nirman")) {
+      return t("donation.causes.ashramNirman", name);
+    }
+    if (n.includes("general")) {
+      return t("donation.causes.generalSeva", name);
+    }
+    return name;
+  };
+
+  const getLocalizedCauseDesc = (name, desc) => {
+    if (!name) return desc || "";
+    const n = name.trim().toLowerCase();
+    if (n.includes("annadan") || n.includes("anna") || n.includes("food")) {
+      return t("donation.causes.annadanSevaDesc", desc);
+    }
+    if (n.includes("gau") || n.includes("cow")) {
+      return t("donation.causes.gauSevaDesc", desc);
+    }
+    if (n.includes("education") || n.includes("gurukul") || n.includes("school")) {
+      return t("donation.causes.educationSupportDesc", desc);
+    }
+    if (n.includes("medical") || n.includes("health")) {
+      return t("donation.causes.medicalReliefDesc", desc);
+    }
+    if (n.includes("nirman") || n.includes("construction") || n.includes("ashram nirman")) {
+      return t("donation.causes.ashramNirmanDesc", desc);
+    }
+    if (n.includes("general")) {
+      return t("donation.causes.generalSevaDesc", desc);
+    }
+    return desc || "";
+  };
+
+  const handleValidateReferralCode = useCallback(async (code) => {
+    setReferralData((prev) => ({
+      ...prev,
+      code,
+      isLoading: true,
+      error: null,
+    }));
+
+    try {
+      const data = await validateReferralCode(code);
+      if (data.valid && data.collectorName) {
+        setReferralData({
+          code,
+          collectorName: data.collectorName,
+          isValid: true,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        setReferralData({
+          code: null,
+          collectorName: null,
+          isValid: false,
+          isLoading: false,
+          error:
+            data.error ||
+            t("donation.step1.referralNotFound"),
+        });
+      }
+    } catch {
+      setReferralData({
+        code: null,
+        collectorName: null,
+        isValid: false,
+        isLoading: false,
+        error: null,
+      });
+    }
+  }, [t]);
 
   useEffect(() => {
     const fetchDonationHeads = async () => {
@@ -89,47 +177,7 @@ const DonationPage = () => {
         });
       }, 250);
     }
-  }, [searchParams, donationHeads, loadingHeads]);
-
-  const handleValidateReferralCode = async (code) => {
-    setReferralData((prev) => ({
-      ...prev,
-      code,
-      isLoading: true,
-      error: null,
-    }));
-
-    try {
-      const data = await validateReferralCode(code);
-      if (data.valid && data.collectorName) {
-        setReferralData({
-          code,
-          collectorName: data.collectorName,
-          isValid: true,
-          isLoading: false,
-          error: null,
-        });
-      } else {
-        setReferralData({
-          code: null,
-          collectorName: null,
-          isValid: false,
-          isLoading: false,
-          error:
-            data.error ||
-            "Referral code not recognized. You can still donate without it.",
-        });
-      }
-    } catch {
-      setReferralData({
-        code: null,
-        collectorName: null,
-        isValid: false,
-        isLoading: false,
-        error: null,
-      });
-    }
-  };
+  }, [searchParams, donationHeads, loadingHeads, handleValidateReferralCode]);
 
   const handleManualReferralSubmit = async () => {
     const code = manualReferralInput.trim().toUpperCase();
@@ -151,7 +199,7 @@ const DonationPage = () => {
         setReferralData((prev) => ({
           ...prev,
           error:
-            data.error || "Invalid referral code. Please check and try again.",
+            data.error || t("donation.step1.referralNotFound"),
         }));
       }
     } catch {
@@ -191,73 +239,83 @@ const DonationPage = () => {
 
   return (
     <>
-      <section className="px-6 py-20 md:px-12">
+      <section className="px-6 pt-8 pb-16 md:pt-10 md:pb-20 md:px-12">
         <div className="mx-auto max-w-screen-2xl">
-          <div className="mb-14 grid grid-cols-1 gap-8 md:grid-cols-12 md:items-end">
+          <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-12 md:items-end">
             <div className="md:col-span-8">
-              <h1 className="font-serif text-[3.2rem] leading-tight text-[#1c1c19] md:text-[4.5rem]">
-                Donate
+              <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl leading-tight text-[#1c1c19]">
+                {t("donation.pageTitle")}
               </h1>
-              <p className="mt-5 max-w-3xl text-lg text-[#54433b]">
-                Choose a cause close to your heart and make a difference.
+              <p className="mt-4 max-w-3xl text-base md:text-lg text-[#54433b]">
+                {t("donation.pageSubtitle")}
               </p>
             </div>
           </div>
 
           {loadingHeads ? (
             <div className="py-16 text-center text-[#54433b]">
-              Loading support levels...
+              {t("donation.loadingCauses")}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {donationHeads.map((head) => {
                 const selected = selectedCause?._id === head._id;
+                const localizedName = getLocalizedCauseName(head.name);
+                const localizedDesc = getLocalizedCauseDesc(head.name, head.description);
+
                 return (
                   <button
                     key={head._id}
                     type="button"
                     onClick={() => handleCauseSelect(head)}
-                    className={`group rounded-4xl p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_42px_rgba(60,47,47,0.18)] ${
+                    className={`group rounded-3xl p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border ${
                       selected
-                        ? "bg-linear-to-br from-[#904819] to-[#af602f] text-white shadow-[0_16px_42px_rgba(96,52,24,0.35)]"
-                        : "bg-white text-[#1c1c19] shadow-[0_12px_40px_rgba(60,47,47,0.06)]"
+                        ? "bg-linear-to-br from-[#904819] to-[#af602f] text-white shadow-xl border-[#904819] ring-2 ring-[#af602f]/40"
+                        : "bg-white text-[#1c1c19] border-[#ebe5dc] shadow-xs hover:border-[#d9a574]"
                     }`}
                   >
-                    <div className="mb-4 h-40 overflow-hidden rounded-3xl bg-[#f6f3ee]">
+                    <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-[#f6f3ee]">
                       {head.imageUrl && !imageErrors[head._id] ? (
                         <img
                           src={head.imageUrl}
-                          alt={head.name}
+                          alt={localizedName}
                           onError={() => handleImageError(head._id)}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-sm opacity-70">
-                          Cause Image
+                          {t("donation.causeImage")}
                         </div>
                       )}
                     </div>
+
+                    {selected && (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/20 text-white mb-2">
+                        ✓ {t("donation.selectedBadge")}
+                      </span>
+                    )}
+
                     <h3
                       className={`font-serif text-2xl transition-colors duration-300 ${
                         selected ? "text-white" : "group-hover:text-[#7d3c14]"
                       }`}
                     >
-                      {head.name}
+                      {localizedName}
                     </h3>
                     <p
                       className={`mt-2 text-sm transition-colors duration-300 ${
-                        selected ? "text-white/80" : "text-[#54433b] group-hover:text-[#3f312a]"
+                        selected ? "text-white/85" : "text-[#54433b] group-hover:text-[#3f312a]"
                       }`}
                     >
-                      {head.description || "Support this seva initiative."}
+                      {localizedDesc}
                     </p>
                     {head.minAmount ? (
                       <p
-                        className={`mt-3 text-xs transition-colors duration-300 ${
-                          selected ? "text-white/80" : "text-[#73594b] group-hover:text-[#5c463a]"
+                        className={`mt-3 text-xs font-medium transition-colors duration-300 ${
+                          selected ? "text-white/90" : "text-[#73594b] group-hover:text-[#5c463a]"
                         }`}
                       >
-                        Min ₹{Number(head.minAmount).toLocaleString("en-IN")}
+                        {t("donation.minContribution")} ₹{Number(head.minAmount).toLocaleString(i18n.language || "en-IN")}
                       </p>
                     ) : null}
                   </button>
@@ -271,17 +329,19 @@ const DonationPage = () => {
           </div>
 
           {referralData.isValid && referralData.collectorName && (
-            <div className="mt-8 rounded-2xl bg-green-50 p-4 text-green-700">
-              Referred by{" "}
-              <span className="font-semibold">
-                {referralData.collectorName}
-              </span>
+            <div className="mt-8 rounded-2xl bg-green-50 p-4 text-green-700 flex items-center justify-between">
+              <div>
+                {t("donation.referredBy")}{" "}
+                <span className="font-semibold">
+                  {referralData.collectorName}
+                </span>
+              </div>
               <button
                 onClick={handleClearReferral}
-                className="ml-3 underline"
+                className="ml-3 underline font-medium cursor-pointer"
                 type="button"
               >
-                Clear
+                {t("donation.clear")}
               </button>
             </div>
           )}
@@ -295,7 +355,7 @@ const DonationPage = () => {
           {!referralData.isValid && (
             <div className="mt-8 rounded-3xl bg-[#f6f3ee] p-5">
               <p className="mb-3 text-sm font-medium text-[#3C2F2F]">
-                Have a referral code?
+                {t("donation.haveReferral")}
               </p>
               <div className="flex flex-wrap gap-2">
                 <input
@@ -304,9 +364,9 @@ const DonationPage = () => {
                   onChange={(event) =>
                     setManualReferralInput(event.target.value.toUpperCase())
                   }
-                  placeholder="Enter referral code"
+                  placeholder={t("donation.enterReferral")}
                   maxLength={9}
-                  className="min-w-55 flex-1 rounded-xl bg-white px-4 py-3 outline-none focus:ring-1 focus:ring-[#904819]/40"
+                  className="min-w-55 flex-1 rounded-xl bg-white px-4 py-3 outline-none focus:ring-1 focus:ring-[#904819]/40 text-sm"
                 />
                 <button
                   type="button"
@@ -314,9 +374,9 @@ const DonationPage = () => {
                   disabled={
                     !manualReferralInput.trim() || manualReferralLoading
                   }
-                  className="rounded-full bg-[#904819] px-6 py-3 text-white disabled:opacity-50"
+                  className="rounded-full bg-[#904819] px-6 py-3 text-white text-sm font-medium disabled:opacity-50 hover:bg-[#7d3c14] transition cursor-pointer"
                 >
-                  {manualReferralLoading ? "Validating..." : "Apply"}
+                  {manualReferralLoading ? t("donation.validating") : t("donation.apply")}
                 </button>
               </div>
             </div>
@@ -332,7 +392,7 @@ const DonationPage = () => {
             </div>
           ) : (
             <div className="mt-12 rounded-3xl bg-[#ebe8e3] p-8 text-center text-[#54433b]">
-              Select a support level to continue to secure contribution.
+              {t("donation.selectCauseNotice")}
             </div>
           )}
         </div>
